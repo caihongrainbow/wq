@@ -57,5 +57,9 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'wechat.oauth' => \App\Http\Middleware\WechatOAuth::class,
+        // 'wechat.oauth' => \Overtrue\LaravelWeChat\Middleware\OAuthAuthenticate::class,
+        'mock.user' => \App\Http\Middleware\MockUser::class,
+        'checkage' => \App\Http\Middleware\CheckAge::class,
     ];
 }

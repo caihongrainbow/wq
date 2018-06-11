@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'connection' => null,
+    'connection' => 'session',
 
     /*
     |--------------------------------------------------------------------------
@@ -194,4 +194,5 @@ return [
 
     'same_site' => null,
 
+    'login_key' => env('SESSION_LOGIN_KEY', 'user'),
 ];

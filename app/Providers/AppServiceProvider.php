@@ -13,7 +13,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // \App\Models\User::observe(\App\Observers\UserObserver::class);
+
+        \Auth::provider('custom-eloquent', function ($app, $config) {
+            return new CustomEloquentUserProvider($this->app['hash'], $config['model']);
+        });
+
+        \Carbon\Carbon::setLocale('zh');
     }
 
     /**
