@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Institution extends Model
 {
@@ -11,6 +13,7 @@ class Institution extends Model
      * 软删除
      */
     use SoftDeletes;
+
     protected $dates = ['deleted_at'];
 
     protected $fillable = ['name', 'orgid', 'type_id'];
@@ -36,16 +39,6 @@ class Institution extends Model
     }
 
     /**
-     * [userWechatMps 与wechat_mps、users关联 多对多]
-     * @Author   CaiHong
-     * @DateTime 2018-06-07
-     * @return   [type]     [description]
-     */
-    public function userWechatMps(){
-    	return $this->belongsToMany(WechatMp::class, 'user_wechat_mps', 'ins_id', 'wechat_mp_id')->withPivot('openid','user_id');
-    }
-
-    /**
      * [roles 与roles关联 多对多]
      * @Author   CaiHong
      * @DateTime 2018-06-07
@@ -62,12 +55,21 @@ class Institution extends Model
      * @return   [type]     [description]
      */
     public function users(){
-        return $this->belongsToMany(User::class, 'institution', 'ins_id', 'user_id');
+        return $this->belongsToMany(User::class, 'institution_users', 'ins_id', 'user_id')->withTimestamps();
     }
 
 
     public function getDefaultRoleName(){
-        return $this->orgid.'_user';
+        return 'user';
+        // return $this->orgid.'_user';
+    }
+
+    public function byOrgid($orgid){
+        return $this::where('orgid', $orgid)->first();
+    }
+
+    public function md5CreateClientid($user_id){
+        return substr(md5($this->orgid), 13, 6).substr(md5($this->orgid.(string)$user_id), 7, 18);
     }
 
 }

@@ -31,6 +31,6 @@ class CustomEloquentUserProvider extends EloquentUserProvider
     {
         $plain = $credentials['password'];
         $authPassword = $user->getAuthPassword();
-        return md5(md5($plain).$authPassword['salt']) == $authPassword['password'];
+        return md5PlusSalt($plain, $authPassword['salt']) == $authPassword['password'];
     }
 }

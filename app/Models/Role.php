@@ -12,9 +12,4 @@ class Role extends SpatieRole
 		return $this->belongsToMany(Institution::class, 'institution_roles', 'role_id', 'ins_id');
 	}
 
-	public function getDefaultRoles(){
-		return $this::with(['institutions' => function($query){
-			$query->where('ins_id', '=', 66);
-		}])->where('name', '=', 'user')->get(['id']);
-	}
 }

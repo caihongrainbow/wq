@@ -4,42 +4,44 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\Controller;
+
 use App\Http\Requests\Api\AuthorizationRequest;
-use Session;
+use App\Http\Requests\Api\VerificationCodeRequest;
+
 use Auth;
+use Tymon\JWTAuth\JWTAuth;
 use EasyWeChat\Factory;
-use App\Models\Institution;
+
 use App\Models\User;
 
 class AuthorizationsController extends Controller
 {
+    protected $guard;
 	use \App\Traits\OAuthorizationHelper;
 
     public function store(AuthorizationRequest $request)
     {
     	// return $request;
         $username = $request->username;
+        $password = $request->password;
 
-        filter_var($username, FILTER_VALIDATE_EMAIL) ?
-            $credentials['email'] = $username :
-            $credentials['account'] = $username;
+        $this->institution($request->orgid)->action('login')->facade('passport', $username, $password);
 
-        $credentials['password'] = $request->password;
-        
-        if (!$token = Auth::guard('api')->attempt($credentials)) {
-            return $this->response->errorUnauthorized('用户名或密码错误');
-        }
-
-        return $this->respondWithToken($token)->setStatusCode(201);
+        return $this->respondWithToken();
     }
 
-    protected function respondWithToken($token)
+    protected function respondWithToken()
 	{
+        if(!$this->custom){
+            return $this->response->errorUnauthorized($this->error);
+        }
+
 	    return $this->response->array([
-	        'access_token' => $token,
+	        'access_token' => Auth::guard($this->guard)->fromUser($this->custom),
+            'clientid' => $this->custom->clientid,
 	        'token_type' => 'Bearer',
-	        'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
-	    ]);
+	        'expires_in' => Auth::guard($this->guard)->factory()->getTTL() * 60
+	    ])->setStatusCode(201);
 	}
 
 	//刷新第三方登录token
@@ -57,28 +59,41 @@ class AuthorizationsController extends Controller
 	}
 
 	public function wechatStore(Request $request){
-		$ins = Institution::where('orgid', $request->orgid)->first();
-        $wechatmps = $ins->wechatMps()->first();
+
+        $this->institution($request->orgid);
+
+        $wechatmps = $this->institution->wechatMps()->first();
         $config = ['app_id' => $wechatmps->appid, 'secret' => $wechatmps->appsecret];
         $officialAccount = Factory::officialAccount($config);
         $scopes = ['snsapi_userinfo'];
 
         if ($request->has('code')) {
-            $user = $this->action('register')->facade('wechat', $officialAccount->oauth->user(), $wechatmps->id, $ins->id);
-            
-            $token = Auth::guard('api')->fromUser($user);
+        	$wechatUser = $officialAccount->oauth->user();
+ 
+            $user = $this->action('login')->facade('wechat', $wechatUser->getOriginal(), $wechatmps->id);
 
-            return $this->respondWithToken($token)->setStatusCode(201);
+            return $this->respondWithToken();
         } 
 
         return $officialAccount->oauth->scopes($scopes)->redirect($request->fullUrl());
 	}
 
-	public function add(){
-		Session::put('uid', 4);
+	public function mobileStore(VerificationCodeRequest $request)
+    {
+        $verifyCode = $request->verify_code;
+        $phoneNumber = $request->phone_number;
+        $areaCode = $request->area_code;
+
+        $cacheVerifyCode = \Cache::get('verificationCode_'.$phoneNumber);
+        
+        // if(is_null($cacheVerifyCode) || ($verifyCode != $cacheVerifyCode)){
+        //     return $this->response->errorInternal('手机验证码错误');
+        // }
+
+        $this->institution($request->orgid)->action('login')->facade('mobile', $phoneNumber, $areaCode);
+
+        return $this->respondWithToken();
 	}
 
-	public function get(){
-		echo Session::pull('uid') ?? 0;
-	}
+
 }

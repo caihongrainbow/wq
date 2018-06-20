@@ -43,8 +43,23 @@ return [
 
         'api' => [
             'driver' => 'jwt',
-            'provider' => 'users',
+            'provider' => 'customs',
         ],
+        
+        // 'user' => [
+        //     'driver' => 'jwt',
+        //     'provider' => 'users',
+        // ],
+        
+        // 'custom' => [
+        //     'driver' => 'jwt',
+        //     'provider' => 'customs',
+        // ],
+
+        // 'institutions' => [
+        //     'driver' => 'jwt',
+        //     'provider' => 'institutions',
+        // ]
     ],
 
     /*
@@ -69,6 +84,14 @@ return [
             'driver' => 'custom-eloquent',
             'model' => App\Models\User::class,
         ],
+        'customs' => [
+            'driver' => 'custom-eloquent',
+            'model' => App\Models\InstitutionUser::class,
+        ],
+        // 'institutions' => [
+        //     'driver' => 'custom-eloquent',
+        //     'model' => App\Models\Institution::class,
+        // ]
         // 'users' => [
         //     'driver' => 'eloquent',
         //     'model' => App\Models\User::class,

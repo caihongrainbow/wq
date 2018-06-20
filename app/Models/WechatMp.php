@@ -9,6 +9,6 @@ class WechatMp extends Model
 	protected $fillable = ['appid', 'appsecret']; 
 
 	public function users(){
-		return $this->belongsToMany(User::class, 'user_wechat_mps');
+		return $this->belongsToMany(User::class, 'user_wechat_mps', 'wechat_mp_id', 'user_id')->withPivot(['openid', 'unionid']);
 	}
 }

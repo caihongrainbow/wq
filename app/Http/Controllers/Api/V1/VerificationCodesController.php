@@ -19,8 +19,8 @@ class VerificationCodesController extends Controller
     public function store(VerificationCodeRequest $request)
     {
         date_default_timezone_set("Asia/Shanghai");
-        $phone = $request->phone;
-        $areaCode = $request->areaCode;
+        $phone = $request->phone_number;
+        $areaCode = $request->area_code;
 
         $templateId = 137359;
 

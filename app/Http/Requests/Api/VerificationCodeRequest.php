@@ -24,7 +24,8 @@ class VerificationCodeRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone' => ['regex:/^[1][3-8]\d{9}$|^([6|9])\d{7}$|^[0][9]\d{8}$|^[6]([8|6])\d{6}$/']
+            'phone_number' => ['required','regex:/^[1][3-8]\d{9}$|^([6|9])\d{7}$|^[0][9]\d{8}$|^[6]([8|6])\d{6}$/'],
+            'area_code' => 'required',
         ];
     }
 

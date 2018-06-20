@@ -43,3 +43,7 @@ function phoneValidate($areaCode, $phonenumber){
 
 	return preg_match($validate, $phonenumber);
 }
+
+function md5PlusSalt($password, $salt){
+	return md5(md5($password).$salt);
+}

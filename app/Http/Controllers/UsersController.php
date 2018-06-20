@@ -10,6 +10,8 @@ use App\Models\WechatMp;
 use App\Models\Institution;
 use App\Models\InstitutionType;
 use App\Models\InstitutionRole;
+use App\Models\InstitutionUser;
+use App\Models\Phone;
 
 use App\Events\TestEvent;
 
@@ -20,9 +22,10 @@ use Illuminate\Support\Facades\Redis;
 
 class UsersController extends Controller
 {
-     use \App\Models\Traits\AuthAccessHelper;
 
     public function index(){
+
+
     	// $user = User::find(2);
     	// var_dump($user->can('edit_settings'));
     	// $wechat = app('wechat.official_account');
@@ -30,7 +33,27 @@ class UsersController extends Controller
     	return '';
     }
 
-    public function test(Request $request){
+    public function test(Request $request)
+    {   
+        $institutionUser = InstitutionUser::where(['user_id' => 1, 'ins_id' => 1])->first();
+        dd($institutionUser);
+        // echo strlen(Institution::find(1)->md5CreateClientid(1));
+        // echo strlen('oMhbBjjP0kYNeqGj21pTA7PHJa7s');
+        // echo substr(md5('wq6eb6ae3a70c8aaeb'), 13, 6).substr(md5(), 7, 18);
+        // $user = User::find(1);
+        // dd($user->hasAnyRole(['super', 'admin']));
+        // echo User::where(['account' => 'super'])->first();
+        // $roles = Role::whereHas('institutions', function($query){
+        //     $query->where('ins_id', 2);
+        // })->get();
+        // $roles = Role::whereDoesntHave('institutions')->where('name', 'user')->get();where('ins_id', 1);
+        // $test = User::find(3)->getStoredRole('user');
+        // dd($test);
+        // Institution::onlyTrashed()->where('id', 1)->restore();
+        // echo Institution::find(1)->users()->first();
+        // InstitutionUser::create(['user_id' => 22315, 'ins_id' => 66]);
+        // $user = Institution::find(1);
+        // echo Auth::guard('institutions')->fromUser($user);
         // $cache = \Cache::get('verificationCode_13726293210');
         // echo $cache;
         // echo public_path();

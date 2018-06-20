@@ -9,6 +9,7 @@ use App\Models\Institution;
 use App\Models\InstitutionType;
 use App\Models\Role;
 use App\Models\WechatMp;
+use App\Models\User;
 
 class SeedInitData extends Migration
 {
@@ -19,6 +20,14 @@ class SeedInitData extends Migration
      */
     public function up()
     {
+        $salt = rand(10000, 99999);
+        $user = User::create([
+            'name' => '超级管理员',
+            'account' => 'super',
+            'login_salt' => $salt,
+            'password' => md5PlusSalt('superadmin', $salt),
+        ]);
+
         $type = InstitutionType::create([
             'title' => '公司',
             'sign' => 'company',
@@ -26,16 +35,26 @@ class SeedInitData extends Migration
 
         $ins = Institution::create([
             'name' => '御温泉',
-            'orgid' => makeOrgid('御温泉'),
+            'orgid' => 'wq6eb6ae3a70c8aaeb',
             'type_id' => $type->id,
         ]);
 
-        $role = Role::create([
-            'name' => $ins->orgid.'_user',
-            'display_name' => '用户',
+        $roleSuper = Role::create([
+            'name' => 'super',
+            'display_name' => '超级管理员',
         ]);
 
-        $ins->roles()->attach($role->id);
+        $user->assignRole('super');
+
+        $roleAdmin = Role::create([
+            'name' => 'admin',
+            'display_name' => '管理员',
+        ]);
+
+        $roleUser = Role::create([
+            'name' => 'user',
+            'display_name' => '用户',
+        ]);
 
         $wechatMp = WechatMp::create([
             'appid' => 'wxbd2d3ea321d9d7a3',
@@ -53,13 +72,20 @@ class SeedInitData extends Migration
     public function down()
     {
         $ins = Institution::where(['name' => '御温泉'])->first();
-        $role = Role::where(['name' => $ins->orgid.'_user'])->first();
-        $ins->roles()->detach($role->id);
+        $user = User::where(['account' => 'super'])->first();
+        $roleSuper = Role::where(['name' => 'super'])->first();
+        $roleUser = Role::where(['name' => 'user'])->first();
+        $roleAdmin = Role::where(['name' => 'admin'])->first();
         $wechatMp = WechatMp::where(['appid' => 'wxbd2d3ea321d9d7a3'])->first();
         $ins->wechatMps()->detach($wechatMp->id, ['is_on' => 1]);
         $type = InstitutionType::where(['sign' => 'company'])->first();
         $ins->delete();
+        $user->removeRole('super');
+        $user->delete();
         $wechatMp->delete();
         $type->delete();
+        $roleUser->delete();
+        $roleAdmin->delete();
+        $roleSuper->delete();
     }
 }

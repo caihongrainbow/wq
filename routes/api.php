@@ -19,19 +19,23 @@ $api->version('v1', [
     'namespace' => 'App\Http\Controllers\Api\V1',
     'middleware' => 'serializer:array'
 ], function($api) {
-    // 登录
+    // $api->get('authorizations/test', 'UsersController@test');
+
+    // 账号/邮箱 密码登录
     $api->post('authorizations', 'AuthorizationsController@store')
         ->name('api.authorizations.store');
 
     // 微信登录
-    $api->get('wechat/authorizations', 'AuthorizationsController@wechatStore')
-        ->name('api.wechat.authorizations.store');    
-         
-    $api->post('authorizations/mobile', 'AuthorizationsController@test')
-        ->name('api.authorizations.mobile');
+    $api->get('authorizations/wechat', 'AuthorizationsController@wechatStore')
+        ->name('api.wechat.authorizations.store');   
 
-    $api->get('authorizations/add', 'AuthorizationsController@add');
-    $api->get('authorizations/get', 'AuthorizationsController@get');
+    //手机验证码登录
+    $api->post('authorizations/mobile', 'AuthorizationsController@mobileStore')
+        ->name('api.mobile.authorizations.store');
+
+    //用户注册
+    $api->post('users', 'UsersController@store')
+     ->name('api.users.store');
 
     //登录相关 频率限制，节流，防止攻击
     $api->group([
@@ -63,15 +67,17 @@ $api->version('v1', [
 
         // 需要 token 验证的接口
         $api->group(['middleware' => 'api.auth'], function($api) {
-            // 当前登录用户信息
+            // 当前登录平台用户信息
             $api->get('user', 'UsersController@me')
                 ->name('api.user.show');
+
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')
                 ->name('api.user.update');
+
             // 图片资源
-            $api->post('images', 'ImagesController@store')
-                ->name('api.images.store');    
+            // $api->post('images', 'ImagesController@store')
+            //     ->name('api.images.store');    
         });
     });
 
@@ -81,10 +87,6 @@ $api->version('v1', [
 	// $api->get('version', function() {
  //    	return response('this is version v1');
 	// });
-
-	// //用户注册
-	// $api->post('users', 'UsersController@store')
- //    	->name('api.users.store');
 
 	// 图片验证码
 	$api->post('captchas', 'CaptchasController@store')
