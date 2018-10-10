@@ -15,8 +15,8 @@ class CompleteInstitutionAndUserTables extends Migration
     {
         Schema::create('institution_user_credits', function(Blueprint $table) {
             $table->integer('custom_id');
-            $table->double('history_credit', 15, 2);
-            $table->double('current_credit', 15, 2);
+            $table->double('history_credit', 15, 2)->default(0);
+            $table->double('current_credit', 15, 2)->default(0);
             $table->primary('custom_id');
             $table->softDeletes();
         });
@@ -53,12 +53,12 @@ class CompleteInstitutionAndUserTables extends Migration
             $table->unique('clientid');
         });
 
-        Schema::create('institution_user_auths', function(Blueprint $table) {
+        Schema::create('user_auths', function(Blueprint $table) {
             $table->increments('id');
             $table->integer('phone_id');
             $table->string('name')->nullable();
             $table->integer('user_id');
-            $table->timestamp('certified_at');
+            $table->dateTime('certified_at')->nullable();
             $table->timestamps();
             $table->unique('phone_id');
         });        
@@ -92,14 +92,14 @@ class CompleteInstitutionAndUserTables extends Migration
         Schema::dropIfExists('institution_staffs');
         Schema::dropIfExists('institution_users');
         Schema::dropIfExists('institution_roles');
-        Schema::dropIfExists('institution_user_auths');
+        Schema::dropIfExists('user_auths');
         Schema::dropIfExists('phones');
         Schema::table('users', function(Blueprint $table) {
             $table->dropColumn('account');
             $table->dropColumn('login_salt');
             $table->string('phone')->unique();
             $table->string('introduction');
-            $table->string('password')->nullable(false)->change();
+            // $table->string('password')->nullable(false)->change();
             $table->dropSoftDeletes();
         });
     }

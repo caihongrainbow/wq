@@ -14,19 +14,17 @@ use DB;
 
 trait OAuthorizationHelper
 {
-	public $custom;
+	public $user;
+
+	public $client;
 
 	public $institution;
-
-	public $error;
 
 	protected $allow_register_types = ['wechat', 'account', 'mobile'];
 
 	public $action;
 
-	public function __construct(){
-		$this->guard = 'api';
-	}
+	public $method;
 
 	public function action($action){
 		$this->action = $action;
@@ -38,6 +36,10 @@ trait OAuthorizationHelper
 		$by = is_numeric($key) ? 'id' : 'orgid';
 
 		$institution = Institution::where($by, $key)->first() ?? [];
+
+		if(!$institution) {
+			$this->error('不存在此合作机构');
+		}
 
 		$this->institution = $institution;
 
@@ -51,10 +53,6 @@ trait OAuthorizationHelper
 	 * @return   [type]     [description]
 	 */
 	public function facade(){
-		if(!$this->institution) {
-			$this->error('不存在此合作机构');
-			return;
-		}
 
 		$args = func_get_args();
 		
@@ -66,8 +64,10 @@ trait OAuthorizationHelper
 
 		$method = $type.ucfirst($this->action);
 
-		if(is_callable(self::class, $method))
+		if(is_callable(self::class, $method)){
+			$this->method = $method;
 			return self::$method(...$args);
+		}
 	}
 
 	/**
@@ -95,7 +95,7 @@ trait OAuthorizationHelper
 				}
 
 			}
-				
+
 			$this->contact($user);
 		});
 	}
@@ -136,13 +136,13 @@ trait OAuthorizationHelper
 	 * @param    [type]     $roleName [description]
 	 * @return   [type]               [description]
 	 */
-	protected function baseRegister($data, $roleName = null)
+	protected function baseRegister($data, $role = null)
 	{
 		$user = User::create($data);
-		is_null($roleName) && $roleName = $this->institution->getDefaultRoleName();
-		$return = $user->assignRole($roleName);
 
-		return $return ? $user : $return;
+		!is_null($role) && $user->assignRole($role);		
+
+		return $user ?: false;
 	}
 
 	/**
@@ -154,28 +154,42 @@ trait OAuthorizationHelper
 	 */
 	protected function contact($user, $create = true)
 	{
-		if($user->hasAnyRole(['super', 'admin'])){
-			$this->error('此用户禁止远程授权登录');
-			return;
-		}
+		if($this->institution){ // 机构用户
+			//不存在用户时是否自动进行创建
+			if($create){ //自动创建
+				$clientid = $this->institution->md5CreateClientid($user->id);
 
-		if($create){
-			$clientid = $this->institution->md5CreateClientid($user->id);
+				$institutionUser = InstitutionUser::firstOrCreate(['user_id' => $user->id, 'ins_id' => $this->institution->id, 'clientid' => $clientid]);
 
-			$institutionUser = InstitutionUser::firstOrCreate(['user_id' => $user->id, 'ins_id' => $this->institution->id, 'clientid' => $clientid]);
+				if($user->realname){
+					$institutionUser->name = $user->realname;
+					if($institutionUser->phone_id && is_null($institutionUser->name)){
+						$institutionUser->certified_at = date('Y-m-d H:i:s', time());
+					} 
+					$institutionUser->save();
+				} 
 
-			$this->custom = $institutionUser;
-		}else{
-			$institutionUser = InstitutionUser::where(['user_id' => $user->id, 'ins_id' => $this->institution->id])->first() ?? [];
+				if($institutionUser->roles->isEmpty()){
+					$roleName = $this->institution->getDefaultRoleName();
+					$institutionUser->assignRole($roleName);
+				}
+				
+			}else{ //不创建
+				$institutionUser = InstitutionUser::where(['user_id' => $user->id, 'ins_id' => $this->institution->id])->first() ?? [];
 
-			if($institutionUser){
-				$this->custom = $institutionUser;
-			}else{
-				$this->error('用户不存在');
-				return;
+				if(!$institutionUser){
+					$this->error('用户不存在');
+					return;
+				}
+			}
+
+			$this->client = $institutionUser;			
+		}else{ // 平台用户
+			if($user instanceof User){
+				$this->user = $user;
 			}
 		}
-		
+
 	}
 
 	/**
@@ -186,7 +200,7 @@ trait OAuthorizationHelper
 	 * @param    [type]     $areaCode    [description]
 	 * @return   [type]                  [description]
 	 */
-	protected function mobileLogin($phoneNumber, $areaCode)
+	protected function mobileLogin($phoneNumber, $areaCode, $data = null)
 	{
 		return DB::transaction(function () use ($phoneNumber, $areaCode) {
 
@@ -195,7 +209,7 @@ trait OAuthorizationHelper
 			$user = $phone->users()->first();
 			
 			if(!$user){
-				$data = ['name' => substr(md5($phoneNumber.$areaCode),8,16)];
+				empty($data) && $data = ['name' => substr(md5($phoneNumber.$areaCode),8,16)];
 
 				$user = $this->baseRegister($data);
 
@@ -203,6 +217,7 @@ trait OAuthorizationHelper
 			}
 
 			$this->contact($user);
+
 		});
 	}
 
@@ -229,7 +244,7 @@ trait OAuthorizationHelper
 
         $passport = md5PlusSalt($password, $user->login_salt);
                
-        if($passport == $user->password){
+        if(hash_equals($passport, $user->password)){
     		$this->contact($user, false);
         }else{
         	$this->error('用户名或密码错误');
@@ -238,9 +253,20 @@ trait OAuthorizationHelper
 
 	}
 
+	//未写完 ！！
+	// protected function passportRegister($account, $password = null, $name = null){
+	// 	$credentials['account'] = $account;
+	// 	$user = User::where($credentials)->first();
+ //        if($user){
+ //        	$this->error('此用户账号已被使用');
+ //        	return;
+ //        }
+	// }
+
 	protected function error($message){
 		$this->error = $message;
 		return;
 	}
+
 
 }

@@ -54,6 +54,18 @@ return [
             'engine' => null,
         ],
 
+        'cnwq' => [
+            'driver' => 'mysql',
+            'host' => '39.108.77.108',
+            'port' => '3306',
+            'database' => 'cnwq',
+            'username' => 'root',
+            'password' => '3864fdb53a',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => 'ts_'
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),

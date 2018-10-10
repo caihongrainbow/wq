@@ -24,6 +24,7 @@ Route::get('/session', function(){
 });
 Route::get('/testuser', 'UsersController@testuser');
 Route::get('/test', 'UsersController@test')->name('test');
+Route::get('/dbtest', 'UsersController@dbtest')->name('dbtest');
 /* test start */
 //1
 // Route::middleware(['checkage'])->group(function() {

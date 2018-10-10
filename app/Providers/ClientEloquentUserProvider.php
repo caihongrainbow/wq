@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-class CustomEloquentUserProvider extends EloquentUserProvider
+class ClientEloquentUserProvider extends EloquentUserProvider
 {
     /**
      * Bootstrap the application services.

@@ -12,31 +12,100 @@ use App\Models\InstitutionType;
 use App\Models\InstitutionRole;
 use App\Models\InstitutionUser;
 use App\Models\Phone;
+use App\Models\Permission;
+use App\Models\RoleLevel;
+use App\Models\Test;
+use App\Models\InstitutionProfileSetting;
 
-use App\Events\TestEvent;
+use App\Events\TestEvent; 
 
 use DB;
 use Auth;
 use Log;
+use Cache;
+use Exception;
 use Illuminate\Support\Facades\Redis;
 
 class UsersController extends Controller
 {
 
     public function index(){
-
-
-    	// $user = User::find(2);
-    	// var_dump($user->can('edit_settings'));
-    	// $wechat = app('wechat.official_account');
-    	// var_dump($wechat);
     	return '';
     }
 
     public function test(Request $request)
-    {   
-        $institutionUser = InstitutionUser::where(['user_id' => 1, 'ins_id' => 1])->first();
-        dd($institutionUser);
+    {
+        // InstitutionUser::find(2)->assignRole('bronze');
+        // InstitutionUser::find(3)->roles()->detach();
+
+        // $client = $this->getInstitutionUserByMobile(1, '86', '13726293210');
+        // $a = "a:1:{s:4:"shop";a:2:{i:0;i:2;i:1;i:3;}}";
+        // dd();
+        // $orginal_data = [
+        //     'delete_role' => ['shop' => [2, 3]],
+        //     'admin_login' => 1,
+        //     'manage_role' => ['shop' => [1]],
+        // ];
+        // $name = ['delete_role', 'admin_login', 'manage_role'];
+        // $entity = [
+        //     ['shop' => [2] ], //
+        //     1, //null
+        //     ['shop' => [1]]
+        // ];
+        // $role = Role::find(3);
+        // $role->givePermissionTo($name, $entity);
+        // $user = InstitutionUser::find(2);
+        // echo $user->can('admin_login');
+        
+        // dd($user->encrypt("10", "abcd"));
+        // $role = Role::find(3);
+        // echo $role->hasPermissionTo('delete_role') ?: 0;
+        // Permission::create(['name' => 'create_group', 'guard_name' => 'web', 'display_name' => '创建集团公司']);
+        // echo $user->can('manage_role') ?: 0;
+        // echo $user->can();
+        // echo $user->getDirectPermissions();
+        // echo $user->getAllPermissions();
+        // $user = User::find(3);
+        // echo Auth::guard('api')->fromUser($user);
+        // echo Auth::guard('test')->fromUser(InstitutionUser::find(2));
+        // $ins = Institution::find(1);
+        // $phone = InstitutionUser::find(2);
+        // echo $phone;
+        // echo Auth::guard('api')->fromUser($phone);
+        //删除缓存
+        // $this->cleanCache('38bb6ef54a929f6b8665c465', 'clientid');
+        // InstitutionUser::find(1)->assignRole('super');
+        // echo $this->getInstitutionUserByRoleName(1, 'user');
+        //创建角色
+        // Role::create(['name' => 'edit_role', 'display_name' => '修改角色']);
+        //创建权限
+        // Permission::create(['name' => 'edit_role', 'display_name' => '修改角色']);
+        // Permission::find(1)->delete();
+        // 赋予角色权限
+        // Role::find(3)->givePermissionTo('delete_role', InstitutionUser::find(2));
+        // 移除角色权限
+        // Role::find(3)->guard(['api'])->revokePermissionTo('role_manage');
+        // echo User::find(1)->can('role_manage') ?: 0;
+        // echo Role::orWhereNull('ins_id')->orWhereIn('ins_id', [1])->whereNotIn('name', ['super', 'admin'])->get();
+        // echo $this->getInstitutionWithSub(1);
+        // $roleName = 'user';
+        // $level = 2;
+        // $insid = 1;
+        // $d = Role::where('name', $roleName)->first()->roleLevels()->where(['level' => $level, 'ins_id' => $insid])->get();
+        // echo $d;
+        // $roleLevel = $rl->getByLevel(1, 3, 2);
+        // dd($roleLevel);
+        // $iu = Role::where('name', 'user')->first()->institutionUsers()->where('ins_id', 1)->get();
+
+        // echo $iu;
+        // $iu = $client->getByClientid('38bb6ef54a929f6b8665c465');
+        // $iu = Institution::find(1);
+        // echo gettype($iu);
+        // $v = 0;
+        // $s = false ?: 'test';
+        // $s = false ?? 'test'; //isset false 0
+        // dd($s);
+
         // echo strlen(Institution::find(1)->md5CreateClientid(1));
         // echo strlen('oMhbBjjP0kYNeqGj21pTA7PHJa7s');
         // echo substr(md5('wq6eb6ae3a70c8aaeb'), 13, 6).substr(md5(), 7, 18);
@@ -88,8 +157,10 @@ class UsersController extends Controller
     	return null;
     }
 
-    public function testuser(){
-        session(['uid' => 44]);
+    public function testuser(InstitutionUser $client){
+        // $client->cleanCache('38bb6ef54a929f6b8665c465', 'clientid');
+        // echo Cache::get('institution_user_clientid_38bb6ef54a929f6b8665c465');
+        // echo $client->get(1);
         // dd($this->auth->user()); 
         // User::create([
         //     'name' => 'caihong',
@@ -118,5 +189,14 @@ class UsersController extends Controller
         return null;
     }
 
+    public function dbtest(){
 
+        // $data = Institution::onlyTrashed()->get();
+        // dd($data);
+        // $ins = Institution::find(1);
+        // $history = $ins->revisionHistory;
+        // dd($history);
+        Log::useFiles(storage_path().'/logs/test.log');
+        Log::info('info', 'test');
+    }
 }

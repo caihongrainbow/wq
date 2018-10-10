@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\User;
+use App\Models\InstitutionUser;
 
 class GenerateToken extends Command
 {
@@ -38,16 +38,16 @@ class GenerateToken extends Command
      */
     public function handle()
     {
-        $userId = $this->ask('输入用户 id');
+        $id = $this->ask('输入机构-用户 id');
 
-        $user = User::find($userId);
+        $iu = InstitutionUser::find($id);
 
-        if (!$user) {
+        if (!$iu) {
             return $this->error('用户不存在');
         }
 
         // 一年以后过期
         $ttl = 365*24*60;
-        $this->info(\Auth::guard('api')->setTTL($ttl)->fromUser($user));
+        $this->info(\Auth::guard('api')->setTTL($ttl)->fromUser($iu));
     }
 }

@@ -21,7 +21,7 @@ function isLogin(){
  * @return   [type]     [description]
  */
 function makeOrgid($key){
-	return 'wq'.substr(md5($key),8,16);
+	return 'wq'.substr(md5($key.time()),8,16);
 }
 
 

@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Schema;
+use DB;
+use Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,13 +16,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // \App\Models\User::observe(\App\Observers\UserObserver::class);
+        Schema::defaultStringLength(191);
+        // \App\Models\UserAuth::observe(\App\Observers\UserAuthObserver::class);
 
-        \Auth::provider('custom-eloquent', function ($app, $config) {
-            return new CustomEloquentUserProvider($this->app['hash'], $config['model']);
+        \Auth::provider('client-eloquent', function ($app, $config) {
+            return new ClientEloquentUserProvider($this->app['hash'], $config['model']);
         });
 
         \Carbon\Carbon::setLocale('zh');
+
+        DB::listen(function ($query) {
+            // $query->sql
+            // $query->bindings
+            // $query->time
+            Log::useFiles(storage_path().'/logs/test.log');
+            Log('info', $query->sql);
+        });
     }
 
     /**

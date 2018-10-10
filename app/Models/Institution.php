@@ -6,17 +6,25 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Venturecraft\Revisionable\RevisionableTrait;
 
-class Institution extends Model
+class Institution extends Authenticatable implements JWTSubject
 {
     /**
      * 软删除
      */
-    use SoftDeletes;
+    use SoftDeletes, RevisionableTrait;
+    // 创建操作是否记录
+    protected $revisionCreationsEnabled = true;
+    // 允许记录的字段
+    protected $keepRevisionOf = ['name', 'orgid', 'deleted_at'];
+    protected $revisionCleanup = true;
+    // 限制某个模型的记录数
+    protected $historyLimit = 200;
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = ['name', 'orgid', 'type_id'];
+    protected $fillable = ['name', 'orgid', 'type_id', 'parent_id'];
 
     /**
      * [type 与institution_types关联 反向1对多]
@@ -28,6 +36,16 @@ class Institution extends Model
     	return $this->belongsTo(InstitutionType::class);
     }
 
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+    
     /**
      * [wechatMps 与wechat_mps关联 多对多]
      * @Author   CaiHong
@@ -64,12 +82,16 @@ class Institution extends Model
         // return $this->orgid.'_user';
     }
 
-    public function byOrgid($orgid){
-        return $this::where('orgid', $orgid)->first();
-    }
 
     public function md5CreateClientid($user_id){
         return substr(md5($this->orgid), 13, 6).substr(md5($this->orgid.(string)$user_id), 7, 18);
     }
 
+    public function profiles(){
+        return $this->belongsToMany(InstitutionProfileSetting::class, 'institution_profiles', 'ins_id', 'field_id', 'id', 'field_id')->withPivot(['field_data']);
+    }
+
+    public function opens(){
+        return $this->morphedByMany(InstitutionType::class, 'model', 'institution_opens', 'ins_id', 'model_id');
+    }
 }

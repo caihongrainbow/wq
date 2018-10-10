@@ -17,9 +17,10 @@ class CreateInstitutionAndTypeTables extends Migration
         Schema::create('institutions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 30);
-            $table->string('orgid', 50)->unique();
+            $table->string('orgid', 50)->unique()->nullable();
             $table->integer('parent_id')->default(0);
             $table->integer('type_id');
+            $table->tinyInteger('is_init')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

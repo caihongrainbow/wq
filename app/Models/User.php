@@ -2,34 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Auth;
 use App\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Contracts\Auth\Access\Gate;
 
 class User extends Authenticatable implements JWTSubject
 {
     use HasRoles;
-    use Notifiable;
 
-    protected $institution;
-
-    public function institution($id){
-        if(is_numeric($id)){
-            $institution = Institution::find($id);
-        }
-
-        if(is_string($id)){
-            $institution = Institution::where('orgid', $id)->first();
-        }
-
-        $this->institution = $institution;
-
-        return $this;
-    }
-
+    // protected $guard_name = 'user';
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -93,31 +79,12 @@ class User extends Authenticatable implements JWTSubject
         $this->wechatMps()->attach($wechatMpid, $data);
     }
 
-    /**
-     * [getStoredRole 重写HasRoles中的方法]
-     * @Author   CaiHong
-     * @DateTime 2018-06-19
-     * @param    [type]     $role [description]
-     * @return   [type]           [description]
-     */
-    public function getStoredRole($role) : Role
-    {
-        if(is_numeric($role)){
-            $where = ['id' => $role, 'guard_name' => $this->getDefaultGuardName()];
-        }else if(is_string($role)){
-            $where = ['name' => $role, 'guard_name' => $this->getDefaultGuardName()];
-        }else{
-            $where = [];
+    public function can($ability, $arguments = []){
+        if($this->hasRole('super')){
+            return true;
         }
 
-        if(!is_null($this->institution)){
-            $role = Role::whereHas('institutions', function($query){
-                $query->where('ins_id', $this->institution->id);
-            })->where($where)->first();
-        }else{
-            $role = Role::whereDoesntHave('institutions')->where($where)->first();
-        }
-
-        return $role;
+        return app(Gate::class)->forUser($this)->check($ability, $arguments);
     }
+
 }
