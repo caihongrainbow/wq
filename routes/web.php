@@ -12,8 +12,5 @@
 */
 
 
-
-Route::get('/testuser', 'UsersController@testuser');
-Route::get('/test', 'UsersController@test')->name('test');
-Route::get('/dbtest', 'UsersController@dbtest')->name('dbtest');
-
+Route::get('user/test', 'UsersController@test');
+Route::get('test/test', 'TestController@test');
