@@ -49,7 +49,7 @@ class CreatePermissionTables extends Migration
 
         Schema::create($tableNames['model_has_permissions'], function (Blueprint $table) {
             $table->unsignedInteger('permission_id');
-            $table->string('entity')->nullable();
+            $table->text('entity')->nullable();
             $table->morphs('model');
             $table->primary(['permission_id', 'model_id', 'model_type']);
         });
@@ -66,7 +66,7 @@ class CreatePermissionTables extends Migration
         Schema::create($tableNames['role_has_permissions'], function (Blueprint $table) {
             $table->unsignedInteger('permission_id');
             $table->unsignedInteger('role_id');
-            $table->string('entity')->nullable();
+            $table->text('entity')->nullable();
             $table->primary(['permission_id', 'role_id']);
 
             app('cache')->forget('spatie.permission.cache');

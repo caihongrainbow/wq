@@ -25,13 +25,13 @@ class AppServiceProvider extends ServiceProvider
 
         \Carbon\Carbon::setLocale('zh');
 
-        DB::listen(function ($query) {
+        // DB::listen(function ($query) {
             // $query->sql
             // $query->bindings
             // $query->time
-            Log::useFiles(storage_path().'/logs/test.log');
-            Log('info', $query->sql);
-        });
+            // Log::useFiles(storage_path().'/logs/test.log');
+            // Log('info', $query->sql);
+        // });
     }
 
     /**

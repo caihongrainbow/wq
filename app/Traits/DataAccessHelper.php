@@ -235,9 +235,9 @@ trait DataAccessHelper
                 return $item->field_id;
             });
             //保存联系人电话
-            $institution->profiles()->attach($fki['contact_tel'], ['field_data' => $mobile]);
+            !empty($mobile) && $institution->profiles()->attach($fki['contact_tel'], ['field_data' => $mobile]);
             //保存联系人邮箱
-            $institution->profiles()->attach($fki['contact_email'], ['field_data' => $email]);
+            !empty($email) && $institution->profiles()->attach($fki['contact_email'], ['field_data' => $email]);
 
             //写入公司配置数据栏institution_profile
             if($type->sign == 'company'){

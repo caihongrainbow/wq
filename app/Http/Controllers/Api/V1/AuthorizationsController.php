@@ -35,7 +35,6 @@ class AuthorizationsController extends Controller
             'access_token' => Auth::guard('user')->fromUser($this->user),
             'token_type' => 'Bearer',
             'expires_in' => Auth::guard('user')->factory()->getTTL() * 60,
-            'id' => $this->user->id,
         ];
 
         return $this->response->array($data)->setStatusCode(201);
@@ -160,26 +159,26 @@ class AuthorizationsController extends Controller
 	//刷新第三方登录token
 	public function update()
 	{
-        dd($this->guard);
-        $user = $this->user();
-	    $token = Auth::guard($this->guard)->refresh();
-	    $data = [
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'expires_in' => $this->factory()->getTTL() * 60,
-            'id' => $user->id,
-        ];
-        return $this->response->array($data)->setStatusCode(201);
+        return Auth::guard('user')->payload();         
+        // $user = $this->user();
+	    // $token = Auth::guard('user')->refresh();
+	    // $data = [
+     //        'access_token' => $token,
+     //        'token_type' => 'Bearer',
+     //        'expires_in' => Auth::guard('client')->factory()->getTTL() * 60,
+     //        'data' => Auth::guard('user')->payload()
+     //    ];
+     //    return $this->response->array($data)->setStatusCode(201);
 	}
 
     public function insUpdate()
     {
         $client = $this->user();
-        $token = Auth::guard($this->guard)->refresh();
+        $token = Auth::guard('client')->refresh();
         $data = [
-            'access_token' => Auth::guard($this->guard)->fromUser($this->client),
+            'access_token' => Auth::guard('client')->fromUser($this->client),
             'token_type' => 'Bearer',
-            'expires_in' => Auth::guard($this->guard)->factory()->getTTL() * 60,
+            'expires_in' => Auth::guard('client')->factory()->getTTL() * 60,
             'id' => $client->user_id,
             'clientid' => $client->clientid
         ];
@@ -189,14 +188,14 @@ class AuthorizationsController extends Controller
     //删除第三方登录token
     public function destroy()
     {
-        Auth::guard($this->guard)->logout();
+        Auth::guard('user')->logout();
         return $this->response->noContent();
     }
 
 	//删除第三方登录token
 	public function insDestroy()
 	{
-	    Auth::guard($this->guard)->logout();
+	    Auth::guard('client')->logout();
 	    return $this->response->noContent();
 	}
 

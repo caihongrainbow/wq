@@ -53,6 +53,7 @@ class InstitutionSeeder extends Seeder
                 $d[] = [
                     'id' => $company->cid, 
                     'name' => $company->cname, 
+                    'orgid' => makeOrgid($company->cname),
                     'parent_id' => 0,
                     'type_id' => 2,
                     'is_init' => 1,
@@ -64,6 +65,7 @@ class InstitutionSeeder extends Seeder
                 $d[] = [
                     'id' => $shop->sid, 
                     'name' => $shop->sname, 
+                    'orgid' => makeOrgid($shop->sname),
                     'parent_id' => 66,
                     'type_id' => $t[$shop->shop_category_id],
                     'is_init' => 1,

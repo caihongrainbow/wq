@@ -35,6 +35,9 @@ class UsersController extends Controller
 
     public function test(Request $request)
     {
+        for($i=0;$i<100;$i++){
+            echo $i;
+        }
         // InstitutionUser::find(2)->assignRole('bronze');
         // InstitutionUser::find(3)->roles()->detach();
 
@@ -190,13 +193,23 @@ class UsersController extends Controller
     }
 
     public function dbtest(){
-
+        echo 'dbtest';
+//         $cnwq_conn = DB::connection('cnwq');
+//         $data = $cnwq_conn->table('user as u')
+//                 ->rightJoin('user_group_link as ugl', 'u.uid', '=', 'ugl.uid')
+//                 ->leftJoin('user_level as ul', 'u.uid', '=', 'ul.uid')
+//                 ->leftJoin('user_credit as uc', 'u.uid', '=', 'uc.user_id')
+//                 ->leftJoin('employee as e', 'u.uid', '=', 'e.user_id')
+//                 ->select('u.uid', 'u.realname', 'u.phone', 'u.account', 'u.password', 'u.login_salt', 'u.uname', 'u.openid', 'ugl.user_group_id', 
+// 'ugl.company_id', 'ugl.identity', 'ul.rule_id', 'uc.history_credit', 'uc.current_credit', 'uc.old_card', 'e.eid', 'e.ename')
+//                 ->where('u.is_del', '=', 0)->whereExists()->offset(0)->limit(5)->toSql();
+//         dd($data);
         // $data = Institution::onlyTrashed()->get();
         // dd($data);
         // $ins = Institution::find(1);
         // $history = $ins->revisionHistory;
         // dd($history);
-        Log::useFiles(storage_path().'/logs/test.log');
-        Log::info('info', 'test');
+        // Log::useFiles(storage_path().'/logs/test.log');
+        // Log::info('info', 'test');
     }
 }

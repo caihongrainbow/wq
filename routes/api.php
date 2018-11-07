@@ -143,6 +143,8 @@ $api->version('v1', [
         });
     });
 
+    $api->post('test/authorizations', 'AuthorizationsController@store')
+            ->name('api.authorizations.store');
 
 
 
